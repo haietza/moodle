@@ -184,6 +184,7 @@ $string['errorinvalidformatinfo'] = 'The selected file is not a valid Moodle bac
 $string['errorrestorefrontpagebackup'] = 'You can only restore front page backups on the front page';
 $string['executionsuccess'] = 'The backup file was successfully created.';
 $string['failed'] = 'Backup failed';
+$string['faileduserquota'] = 'Backup failed, user backup quota exceeded.';
 $string['filename'] = 'Filename';
 $string['filealiasesrestorefailures'] = 'Aliases restore failures';
 $string['filealiasesrestorefailuresinfo'] = 'Some aliases included in the backup file could not be restored. The following list contains their expected location and the source file they were referring to at the original site.';

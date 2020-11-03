@@ -334,6 +334,23 @@ abstract class backup_helper {
             $component = 'user';
             $filearea  = 'backup';
             $itemid    = 0;
+
+            // Don't store files that exceed applicable user backup quotas.
+            $maxareabytes = FILE_AREA_MAX_BYTES_UNLIMITED;
+            if (!empty($CFG->userbackupquota) && $CFG->userbackupquota > 0) {
+                $maxareabytes = $CFG->userbackupquota;
+            }
+            if (has_capability('moodle/user:ignoreuserquota', context_user::instance($userid))) {
+                $maxareabytes = FILE_AREA_MAX_BYTES_UNLIMITED;
+            }
+            $newfilesize = filesize($filepath);
+            if ($newfilesize === false) {
+                throw new file_exception('storedfilecannotread', '', $filepath);
+            }
+            $fileareainfo = file_get_file_area_info($ctxid, $component, $filearea);
+            if ($maxareabytes != FILE_AREA_MAX_BYTES_UNLIMITED && $fileareainfo['filesize'] + $newfilesize > $maxareabytes) {
+                return null;
+            }
         }
 
         // Let's send the file to file storage, everything already defined

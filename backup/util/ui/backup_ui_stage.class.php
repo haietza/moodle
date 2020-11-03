@@ -640,7 +640,12 @@ class backup_ui_stage_complete extends backup_ui_stage_final {
             $output .= $renderer->notification(get_string('missingfilesinpool', 'backup'), 'notifyproblem');
         }
         $output .= $renderer->get_samesite_notification();
-        $output .= $renderer->notification(get_string('executionsuccess', 'backup'), 'notifysuccess');
+        if ($this->results['backup_destination'] == null) {
+            // An empty backup_destination indicates user backup quota exceeded; output error.
+            $output .= $renderer->notification(get_string('faileduserquota', 'backup'), 'notifyerror');
+        } else {
+            $output .= $renderer->notification(get_string('executionsuccess', 'backup'), 'notifysuccess');
+        }
         $output .= $renderer->continue_button($restorerul);
         $output .= $renderer->box_end();
 
