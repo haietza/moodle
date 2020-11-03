@@ -53,11 +53,22 @@ $PAGE->set_heading(get_string('managefiles', 'backup'));
 $PAGE->set_pagelayout('admin');
 $browser = get_file_browser();
 
-$data = new stdClass();
-$options = array('subdirs'=>0, 'maxfiles'=>-1, 'accepted_types'=>'*', 'return_types'=>FILE_INTERNAL);
-file_prepare_standard_filemanager($data, 'files', $options, $filecontext, $component, $filearea, 0);
-$form = new backup_files_edit_form(null, array('data'=>$data, 'contextid'=>$contextid, 'currentcontext'=>$currentcontext, 'filearea'=>$filearea, 'component'=>$component, 'returnurl'=>$returnurl));
+$maxbytes = USER_CAN_IGNORE_FILE_SIZE_LIMITS;
+$maxareabytes = FILE_AREA_MAX_BYTES_UNLIMITED;
+if (!empty($CFG->userbackupquota) && $CFG->userbackupquota > 0) {
+    $maxbytes = $CFG->userbackupquota;
+    $maxareabytes = $CFG->userbackupquota;
+}
+if (has_capability('moodle/user:ignoreuserquota', $context)) {
+    $maxbytes = USER_CAN_IGNORE_FILE_SIZE_LIMITS;
+    $maxareabytes = FILE_AREA_MAX_BYTES_UNLIMITED;
+}
 
+$data = new stdClass();
+$options = array('subdirs' => 0, 'maxbytes' => $maxbytes, 'maxfiles' => -1, 'accepted_types' => '*',
+    'return_types' => FILE_INTERNAL, 'areamaxbytes' => $maxareabytes);
+file_prepare_standard_filemanager($data, 'files', $options, $filecontext, $component, $filearea, 0);
+$form = new backup_files_edit_form(null, array('data' => $data, 'contextid' => $contextid, 'currentcontext' => $currentcontext, 'filearea' => $filearea, 'component' => $component, 'returnurl' => $returnurl, 'maxbytes' => $maxbytes, 'areamaxbytes' => $maxareabytes));
 if ($form->is_cancelled()) {
     redirect($returnurl);
 }
@@ -71,6 +82,21 @@ if ($data) {
 echo $OUTPUT->header();
 
 echo $OUTPUT->container_start();
+
+if ($maxareabytes != FILE_AREA_MAX_BYTES_UNLIMITED) {
+    $fileareainfo = file_get_file_area_info($contextid, $component, $filearea);
+    // Display message only if we have files.
+    if ($fileareainfo['filecount']) {
+        $a = (object) [
+            'used' => display_size($fileareainfo['filesize_without_references']),
+            'total' => display_size($maxareabytes)
+        ];
+        $quotamsg = get_string('quotausage', 'moodle', $a);
+        $notification = new \core\output\notification($quotamsg, \core\output\notification::NOTIFY_INFO);
+        echo $OUTPUT->render($notification);
+    }
+}
+
 $form->display();
 echo $OUTPUT->container_end();
 
