@@ -145,6 +145,11 @@ class backup_plan extends base_plan implements loggable {
         parent::execute();
         $this->controller->set_status(backup::STATUS_FINISHED_OK);
 
+        // An empty backup_destination indicates user backup quota exceeded.
+        if ($this->results['backup_destination'] == null) {
+            return;
+        }
+
         if ($this->controller->get_type() === backup::TYPE_1COURSE) {
             // Trigger a course_backup_created event.
             $otherarray = array('format' => $this->controller->get_format(),
