@@ -590,6 +590,7 @@ $string['useradmineditadmin'] = 'Only administrators are allowed to modify other
 $string['useradminodelete'] = 'Administrator accounts cannot be deleted.';
 $string['userautherror'] = 'Unknown auth plugin';
 $string['userauthunsupported'] = 'Auth plugin not supported here';
+$string['userbackupquotalimit'] = 'You have reached your backup file quota limit.';
 $string['useremailduplicate'] = 'Duplicate address';
 $string['usermustbemnet'] = 'Users in the MNET access control list must be remote MNET users';
 $string['usernamelowercase'] = 'The username must be in lower case';
